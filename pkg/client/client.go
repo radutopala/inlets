@@ -36,7 +36,11 @@ func (c *Client) Connect() error {
 		return http.ErrUseLastResponse
 	}
 
-	u := url.URL{Scheme: "ws", Host: c.Remote, Path: "/tunnel"}
+	remote, _ := url.Parse(c.Remote)
+	if !strings.HasPrefix(remote.Scheme, "ws") {
+		remote.Scheme = "ws"
+	}
+	u := url.URL{Scheme: remote.Scheme, Host: remote.Host, Path: "/tunnel"}
 	log.Printf("connecting to %s", u.String())
 
 	ws, _, err := websocket.DefaultDialer.Dial(u.String(), http.Header{
